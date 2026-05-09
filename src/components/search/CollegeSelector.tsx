@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, MapPin } from "lucide-react";
 import { COLLEGES } from "@/lib/constants";
 import { College } from "@/types";
+import ReactGA from "react-ga4";
 
 type SearchState = "default" | "open" | "searching" | "selected";
 
@@ -136,6 +137,12 @@ export default function CollegeSelector() {
   const handleSelect = (college: College) => {
     setSelectedCollege(college);
     setState("searching");
+    
+    ReactGA.event({
+      category: "User",
+      action: "college_selected",
+      label: college.name,
+    });
     
     setTimeout(() => {
       setState("selected");

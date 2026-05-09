@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import Analytics from "@/components/layout/Analytics";
 
 export const metadata: Metadata = {
   title: "MoveIn | Pune's #1 Student Housing Platform",
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body className="antialiased bg-brand-sand text-brand-ink font-body">
         <AuthProvider>
           <MainLayout>
+            <Analytics />
             {children}
           </MainLayout>
         </AuthProvider>

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import { Star, MapPin, Heart, ChevronLeft, ChevronRight, X, CheckCircle2, MessageCircle, Utensils, Wifi, ShieldCheck, Tv, Wind, Droplet, Dumbbell } from 'lucide-react';
 import SafetyAudit from '@/components/safety/SafetyAudit';
+import ReactGA from "react-ga4";
 
 const StaticPropertyMap = dynamic(() => import('@/components/map/StaticPropertyMap'), { 
   ssr: false, 
@@ -55,10 +56,16 @@ const BookingCard = ({ isMobile = false }) => (
     </div>
 
     <div className="space-y-3">
-      <button className="w-full bg-brand-gold text-brand-ink font-bold py-4 rounded-full hover:bg-brand-ink hover:text-white transition-colors shadow-sm">
+      <button 
+        onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: "Book Visit CTA" })}
+        className="w-full bg-brand-gold text-brand-ink font-bold py-4 rounded-full hover:bg-brand-ink hover:text-white transition-colors shadow-sm"
+      >
         Book a Visit
       </button>
-      <button className="w-full flex items-center justify-center space-x-2 bg-white border-2 border-[#2D7A4F] text-[#2D7A4F] font-bold py-3.5 rounded-full hover:bg-green-50 transition-colors">
+      <button 
+        onClick={() => ReactGA.event({ category: "User", action: "whatsapp_clicked", label: "Property Detail Page" })}
+        className="w-full flex items-center justify-center space-x-2 bg-white border-2 border-[#2D7A4F] text-[#2D7A4F] font-bold py-3.5 rounded-full hover:bg-green-50 transition-colors"
+      >
         <MessageCircle size={18} />
         <span>WhatsApp Owner</span>
       </button>
