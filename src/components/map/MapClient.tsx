@@ -112,7 +112,7 @@ const ProximityRings = ({ center }: { center: [number, number] }) => {
   );
 }
 
-export default function MapClient() {
+export default function MapClient({ initialCollegeId }: { initialCollegeId?: string }) {
   const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
@@ -121,6 +121,18 @@ export default function MapClient() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.5204, 73.8567]);
   const [mapZoom, setMapZoom] = useState(13);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+
+  // Handle initial college from props
+  useEffect(() => {
+    if (initialCollegeId) {
+      const college = COLLEGES.find(c => c.id === initialCollegeId);
+      if (college) {
+        setSelectedCollege(college.id);
+        setMapCenter([college.coords.lat, college.coords.lng]);
+        setMapZoom(14);
+      }
+    }
+  }, [initialCollegeId]);
 
   const [sheetState, setSheetState] = useState<'closed' | 'half' | 'full'>('closed');
 
