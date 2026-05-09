@@ -140,7 +140,7 @@ function ListingsContent() {
                 ].map(option => (
                   <button 
                     key={option.id}
-                    onClick={() => setSortBy(option.id as any)}
+                    onClick={() => setSortBy(option.id as 'recommended' | 'price-low' | 'price-high' | 'safety')}
                     className={`w-full text-left px-4 py-2.5 text-sm rounded-xl transition-colors ${sortBy === option.id ? 'bg-brand-sand text-brand-ink font-bold' : 'text-brand-ink/60 hover:bg-gray-50'}`}
                   >
                     {option.label}
