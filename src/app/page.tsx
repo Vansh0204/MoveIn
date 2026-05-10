@@ -250,17 +250,16 @@ export default function Home() {
                 }}
                 className="absolute top-0 left-0 w-full bg-[#1A1815] border border-white/5 rounded-[20px] overflow-hidden shadow-float hover:shadow-glow-gold transition-shadow duration-300"
               >
-                <div className="h-36 relative overflow-hidden">
+                <div className="h-40 relative overflow-hidden bg-brand-gold/5">
                   <Image
                     src={card.image}
                     alt={card.name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="280px"
-                    unoptimized
                   />
-                  <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
-                  <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/20">
+                  <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/50 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-brand-ink/40 backdrop-blur-md px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/10">
                     <MapPin size={12} className="text-brand-gold" />
                     <span className="text-[10px] text-white font-medium">{card.distance}</span>
                   </div>
@@ -289,17 +288,16 @@ export default function Home() {
                 transition={{ delay: 0.6 + (i * 0.1), duration: 0.4 }}
                 className="min-w-[260px] bg-[#1A1815] border border-white/5 rounded-[20px] overflow-hidden shadow-lg snap-center shrink-0"
               >
-                <div className="h-32 relative overflow-hidden">
+                <div className="h-36 relative overflow-hidden bg-brand-gold/5">
                   <Image
                     src={card.image}
                     alt={card.name}
                     fill
                     className="object-cover"
                     sizes="260px"
-                    unoptimized
                   />
-                  <div className="absolute top-0 left-0 right-0 h-14 bg-gradient-to-b from-black/40 to-transparent" />
-                  <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/20">
+                  <div className="absolute top-0 left-0 right-0 h-14 bg-gradient-to-b from-black/50 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-brand-ink/40 backdrop-blur-md px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/10">
                     <MapPin size={12} className="text-brand-gold" />
                     <span className="text-[10px] text-white font-medium">{card.distance}</span>
                   </div>
