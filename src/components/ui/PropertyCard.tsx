@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import ReactGA from "react-ga4";
 import { LucideIcon, Heart, MapPin, Star, Wifi, AirVent, Utensils, WashingMachine, Sparkles, Shield, Dumbbell, Zap, Tv, Car } from "lucide-react";
 
 export interface PropertyCardProps {
@@ -44,6 +47,7 @@ const amenityIconMap: Record<string, LucideIcon> = {
 
 export default function PropertyCard({ property, variant = 'grid', onSave, isSaved = false }: PropertyCardProps) {
   const [saved, setSaved] = useState(isSaved);
+  const router = useRouter();
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -71,11 +75,26 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
 
   return (
     <div 
+      onClick={() => {
+        ReactGA.event({ category: "User", action: "listing_clicked", label: property.name });
+        router.push(`/listings/${property.id}`);
+      }}
       className={`group relative bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-[5px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] cursor-pointer flex flex-col ${variant === 'map-popup' ? 'w-[280px]' : 'w-full'}`}
     >
       {/* Image Area */}
-      <div className="relative h-[200px] overflow-hidden">
-        <div className={`absolute inset-0 bg-gradient-to-br ${getGradient()} transition-transform duration-500 group-hover:scale-105`} />
+      <div className="relative h-[200px] overflow-hidden bg-gray-100">
+        {property.images && property.images[0] ? (
+          <Image 
+            src={property.images[0]} 
+            alt={property.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className={`absolute inset-0 bg-gradient-to-br ${getGradient()} transition-transform duration-500 group-hover:scale-105`} />
+        )}
+        
+        <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300" />
         
         {/* Top Left Badge */}
         {property.isVerified && (

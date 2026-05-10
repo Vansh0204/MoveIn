@@ -25,7 +25,15 @@ const MOCK_PROPERTIES: PropertyCardProps['property'][] = Array.from({ length: 48
   isVerified: i % 3 !== 0,
   isFeatured: i % 7 === 0,
   amenities: ['WiFi', 'AC', 'Meals', 'Laundry', 'Cleaning'].slice(0, 3 + (i % 3)),
-  images: [],
+  images: [
+    `https://images.unsplash.com/photo-${[
+      '1522708323590-d24dbb6b0267',
+      '1502672260266-1c1de2424107',
+      '1497366216548-37526070297c',
+      '1484154218962-a197022b5858',
+      '1493663284031-b7e3aefcae8e'
+    ][i % 5]}?q=80&w=800`
+  ],
   reviewCount: 12 + (i * 3),
   rating: 4.0 + (i % 10) / 10
 }));
@@ -213,16 +221,12 @@ function ListingsContent() {
                 if (index === properties.length - 1) {
                   return (
                     <div ref={lastElementRef} key={property.id}>
-                      <Link href={`/listings/${property.id}`} onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}>
-                        <PropertyCard property={property} />
-                      </Link>
+                      <PropertyCard property={property} />
                     </div>
                   );
                 }
                 return (
-                  <Link key={property.id} href={`/listings/${property.id}`} onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}>
-                    <PropertyCard property={property} />
-                  </Link>
+                  <PropertyCard key={property.id} property={property} />
                 );
               })}
               
