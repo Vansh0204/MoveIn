@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import ReactGA from "react-ga4";
 import { LucideIcon, Heart, MapPin, Star, Wifi, AirVent, Utensils, WashingMachine, Sparkles, Shield, Dumbbell, Zap, Tv, Car } from "lucide-react";
 
 export interface PropertyCardProps {
@@ -71,9 +73,14 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
   const extraAmenitiesCount = property.amenities.length - 4;
 
   return (
-    <div 
-      className={`group relative bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-[5px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] cursor-pointer flex flex-col ${variant === 'map-popup' ? 'w-[280px]' : 'w-full'}`}
-    >
+    <div className={`group relative bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-[5px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] flex flex-col ${variant === 'map-popup' ? 'w-[280px]' : 'w-full'}`}>
+      {/* Invisible Link Overlay for bulletproof navigation */}
+      <Link 
+        href={`/listings/${property.id}`}
+        onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}
+        className="absolute inset-0 z-20"
+        aria-label={`View details for ${property.name}`}
+      />
       {/* Image Area */}
       <div className="relative h-[200px] overflow-hidden bg-gray-100">
         {property.images && property.images[0] ? (
@@ -81,6 +88,7 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
             src={property.images[0]} 
             alt={property.name}
             fill
+            unoptimized={true}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
@@ -105,7 +113,7 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={handleSave}
-          className="absolute bottom-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
+          className="absolute bottom-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white transition-colors z-[25]"
         >
           <motion.div animate={{ scale: saved ? 1.2 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
             <Heart size={16} className={saved ? "fill-brand-gold text-brand-gold" : "text-brand-ink/70"} />
