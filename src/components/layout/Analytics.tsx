@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import ReactGA from "react-ga4";
 
-export default function Analytics() {
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -13,11 +13,20 @@ export default function Analytics() {
   }, []);
 
   useEffect(() => {
+    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
     ReactGA.send({
       hitType: "pageview",
-      page: pathname + searchParams.toString(),
+      page: url,
     });
   }, [pathname, searchParams]);
 
   return null;
+}
+
+export default function Analytics() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTracker />
+    </Suspense>
+  );
 }
