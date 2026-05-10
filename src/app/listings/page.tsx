@@ -3,11 +3,9 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { Map, List, SlidersHorizontal, ChevronDown, MapPinOff } from "lucide-react";
 import PropertyCard, { PropertyCardProps } from "@/components/ui/PropertyCard";
 import { COLLEGES } from "@/lib/constants";
-import ReactGA from "react-ga4";
 
 // Mock Data Generator
 const MOCK_PROPERTIES: PropertyCardProps['property'][] = Array.from({ length: 48 }).map((_, i) => ({
@@ -221,17 +219,11 @@ function ListingsContent() {
                 if (index === properties.length - 1) {
                   return (
                     <div ref={lastElementRef} key={property.id}>
-                      <Link href={`/listings/${property.id}`} onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}>
-                        <PropertyCard property={property} />
-                      </Link>
+                      <PropertyCard property={property} />
                     </div>
                   );
                 }
-                return (
-                  <Link key={property.id} href={`/listings/${property.id}`} onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}>
-                    <PropertyCard property={property} />
-                  </Link>
-                );
+                return <PropertyCard key={property.id} property={property} />;
               })}
               
               {hasMore && (
