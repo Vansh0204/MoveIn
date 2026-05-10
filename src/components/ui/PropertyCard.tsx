@@ -152,9 +152,9 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
               <span className="font-display text-[20px] font-bold text-brand-ink">₹{property.price.toLocaleString()}</span>
               <span className="text-[12px] text-brand-ink/50 font-medium ml-1">/{property.priceUnit}</span>
             </div>
-            <button className="text-[13px] font-semibold text-brand-ink/70 hover:text-brand-ink hover:bg-brand-gold px-3 py-1.5 rounded-full transition-colors group/btn flex items-center">
+            <div className="text-[13px] font-semibold text-brand-ink/70 hover:text-brand-ink hover:bg-brand-gold px-3 py-1.5 rounded-full transition-colors group/btn flex items-center">
               Book Visit <span className="ml-1 group-hover/btn:translate-x-1 transition-transform">→</span>
-            </button>
+            </div>
           </div>
 
           {/* Amenities Row */}
