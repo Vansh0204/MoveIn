@@ -1,19 +1,32 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 type User = {
+  id: string;
   name: string;
   email: string;
-  collegeId?: string;
+  avatarUrl?: string;
   savedStays: string[];
 };
 
 type AuthContextType = {
   user: User | null;
-  login: (email: string, name: string) => void;
-  logout: () => void;
+  session: Session | null;
+  isLoading: boolean;
+  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUpWithEmail: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
+  logout: () => Promise<void>;
   toggleSaveStay: (id: string) => void;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
@@ -24,17 +37,85 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function mapSupabaseUser(supaUser: SupabaseUser): User {
+  const meta = supaUser.user_metadata ?? {};
+  return {
+    id: supaUser.id,
+    name: meta.full_name ?? meta.name ?? supaUser.email?.split("@")[0] ?? "User",
+    email: supaUser.email ?? "",
+    avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
+    savedStays: [],
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const login = (email: string, name: string) => {
-    setUser({ name, email, savedStays: [] });
+  // Hydrate session on mount & subscribe to auth changes
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ? mapSupabaseUser(session.user) : null);
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ? mapSupabaseUser(session.user) : null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+    if (error) showToast("Google sign-in failed. Try again.");
   };
 
-  const logout = () => {
+  const signInWithEmail = async (
+    email: string,
+    password: string
+  ): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+    showToast("Welcome back! 👋");
+    setIsAuthModalOpen(false);
+    return { error: null };
+  };
+
+  const signUpWithEmail = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name } },
+    });
+    if (error) return { error: error.message };
+    showToast("Account created! Check your email to verify. ✉️");
+    setIsAuthModalOpen(false);
+    return { error: null };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
+    setSession(null);
+    showToast("Signed out successfully.");
   };
 
   const toggleSaveStay = (id: string) => {
@@ -42,22 +123,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthModalOpen(true);
       return;
     }
-    setUser(prev => {
+    setUser((prev) => {
       if (!prev) return prev;
       const isSaved = prev.savedStays.includes(id);
-      return {
-        ...prev,
-        savedStays: isSaved ? prev.savedStays.filter(x => x !== id) : [...prev.savedStays, id]
-      };
+      const updatedStays = isSaved
+        ? prev.savedStays.filter((x) => x !== id)
+        : [...prev.savedStays, id];
+      setTimeout(() => showToast(isSaved ? "Removed from wishlist" : "Saved! ♥"), 50);
+      return { ...prev, savedStays: updatedStays };
     });
-    // Let state update settle before showing toast logic
-    setTimeout(() => {
-        if (!user.savedStays.includes(id)) {
-            showToast("Saved! ♥");
-        } else {
-            showToast("Removed from wishlist");
-        }
-    }, 50);
   };
 
   const showToast = (msg: string) => {
@@ -66,11 +140,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user, login, logout, toggleSaveStay,
-      isAuthModalOpen, openAuthModal: () => setIsAuthModalOpen(true), closeAuthModal: () => setIsAuthModalOpen(false),
-      toastMessage, showToast
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        isLoading,
+        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
+        logout,
+        toggleSaveStay,
+        isAuthModalOpen,
+        openAuthModal: () => setIsAuthModalOpen(true),
+        closeAuthModal: () => setIsAuthModalOpen(false),
+        toastMessage,
+        showToast,
+      }}
+    >
       {children}
       <AnimatePresence>
         {toastMessage && (

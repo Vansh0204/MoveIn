@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { COLLEGES } from "@/lib/constants";
 import { ChevronDown, CheckCircle2, ShieldCheck, MapPin } from "lucide-react";
@@ -79,9 +80,9 @@ export default function Home() {
   const selectedCollege = COLLEGES.find(c => c.id === selectedCollegeId);
 
   const previewCards = [
-    { id: 1, name: "The Hive Coliving", price: "₹12,000", score: 95, distance: "5 min walk", rotation: -2, delay: 0.1 },
-    { id: 2, name: "Urban Stay PG", price: "₹8,500", score: 88, distance: "10 min walk", rotation: 0, delay: 0.2 },
-    { id: 3, name: "Premium Space", price: "₹15,000", score: 98, distance: "2 min walk", rotation: 2, delay: 0.3 },
+    { id: 1, name: "The Hive Coliving", price: "₹12,000", score: 95, distance: "5 min walk", rotation: -2, delay: 0.1, image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800" },
+    { id: 2, name: "Urban Stay PG", price: "₹8,500", score: 88, distance: "10 min walk", rotation: 0, delay: 0.2, image: "https://images.unsplash.com/photo-1502672260266-1c1de2424107?q=80&w=800" },
+    { id: 3, name: "Premium Space", price: "₹15,000", score: 98, distance: "2 min walk", rotation: 2, delay: 0.3, image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=800" },
   ];
 
   return (
@@ -249,8 +250,17 @@ export default function Home() {
                 }}
                 className="absolute top-0 left-0 w-full bg-[#1A1815] border border-white/5 rounded-[20px] overflow-hidden shadow-float hover:shadow-glow-gold transition-shadow duration-300"
               >
-                <div className="h-32 bg-gradient-to-br from-brand-teal/40 to-brand-ink relative">
-                  <div className="absolute top-3 left-3 bg-brand-ink/80 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/10">
+                <div className="h-36 relative overflow-hidden">
+                  <Image
+                    src={card.image}
+                    alt={card.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="280px"
+                    unoptimized
+                  />
+                  <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/20">
                     <MapPin size={12} className="text-brand-gold" />
                     <span className="text-[10px] text-white font-medium">{card.distance}</span>
                   </div>
@@ -279,8 +289,17 @@ export default function Home() {
                 transition={{ delay: 0.6 + (i * 0.1), duration: 0.4 }}
                 className="min-w-[260px] bg-[#1A1815] border border-white/5 rounded-[20px] overflow-hidden shadow-lg snap-center shrink-0"
               >
-                <div className="h-28 bg-gradient-to-br from-brand-teal/40 to-brand-ink relative">
-                  <div className="absolute top-3 left-3 bg-brand-ink/80 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/10">
+                <div className="h-32 relative overflow-hidden">
+                  <Image
+                    src={card.image}
+                    alt={card.name}
+                    fill
+                    className="object-cover"
+                    sizes="260px"
+                    unoptimized
+                  />
+                  <div className="absolute top-0 left-0 right-0 h-14 bg-gradient-to-b from-black/40 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-[8px] flex items-center space-x-1 border border-white/20">
                     <MapPin size={12} className="text-brand-gold" />
                     <span className="text-[10px] text-white font-medium">{card.distance}</span>
                   </div>

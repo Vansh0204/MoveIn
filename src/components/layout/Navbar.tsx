@@ -30,9 +30,14 @@ export default function Navbar() {
           <div className="relative">
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-10 h-10 rounded-full bg-brand-teal text-white flex items-center justify-center font-bold text-sm shadow-md border-2 border-white hover:scale-105 transition-transform"
+              className="w-10 h-10 rounded-full bg-brand-teal text-white flex items-center justify-center font-bold text-sm shadow-md border-2 border-white hover:scale-105 transition-transform overflow-hidden"
             >
-              {user.name.substring(0, 2).toUpperCase()}
+              {(user as { avatarUrl?: string }).avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={(user as { avatarUrl?: string }).avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                user.name.substring(0, 2).toUpperCase()
+              )}
             </button>
             
             <AnimatePresence>
@@ -62,7 +67,7 @@ export default function Navbar() {
                         <User size={16} className="mr-3 text-brand-ink/50" /> My Profile
                       </button>
                       <div className="h-px bg-black/5 my-1 mx-2" />
-                      <button onClick={() => { logout(); setIsDropdownOpen(false); }} className="w-full flex items-center px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+                      <button onClick={async () => { await logout(); setIsDropdownOpen(false); }} className="w-full flex items-center px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">
                         <LogOut size={16} className="mr-3 text-red-500" /> Sign Out
                       </button>
                     </div>
