@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
-import ReactGA from "react-ga4";
 import { LucideIcon, Heart, MapPin, Star, Wifi, AirVent, Utensils, WashingMachine, Sparkles, Shield, Dumbbell, Zap, Tv, Car } from "lucide-react";
 
 export interface PropertyCardProps {
