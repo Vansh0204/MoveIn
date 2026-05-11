@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { Star, MapPin, Heart, ChevronLeft, ChevronRight, X, CheckCircle2, MessageCircle, Utensils, Wifi, ShieldCheck, Tv, Wind, Droplet, Dumbbell } from 'lucide-react';
+import { Star, MapPin, Heart, ChevronLeft, ChevronRight, X, CheckCircle2, Utensils, Wifi, ShieldCheck, Tv, Wind, Droplet, Dumbbell } from 'lucide-react';
 import SafetyAudit from '@/components/safety/SafetyAudit';
 import ReactGA from "react-ga4";
 
@@ -33,7 +33,23 @@ function Flame(props: React.SVGProps<SVGSVGElement>) {
   return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
 }
 
-const BookingCard = ({ isMobile = false, user, openAuthModal, onBook, isBooked }: { isMobile?: boolean, user: any, openAuthModal: any, onBook: any, isBooked: boolean }) => (
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
+}
+
+interface BookingCardProps {
+  isMobile?: boolean;
+  user: User | null;
+  openAuthModal: () => void;
+  onBook: () => void;
+  isBooked: boolean;
+}
+
+const BookingCard = ({ isMobile = false, user, openAuthModal, onBook, isBooked }: BookingCardProps) => (
   <div className={`bg-white ${isMobile ? '' : 'border border-black/5 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-6'}`}>
     {!isMobile && (
       <>

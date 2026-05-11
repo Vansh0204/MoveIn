@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { COLLEGES } from "@/lib/constants";

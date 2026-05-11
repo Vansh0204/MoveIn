@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, type FormEvent } from "react";
+import React, { useState, useEffect, type FormEvent, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -12,13 +12,8 @@ import {
   Settings, 
   Plus, 
   Search, 
-  MoreVertical, 
-  CheckCircle2, 
-  AlertCircle,
   ChevronRight,
-  ExternalLink,
   Zap,
-  Filter,
   LogOut,
   Phone
 } from "lucide-react";
@@ -41,6 +36,7 @@ interface Property {
   name: string;
   type: string;
   beds: number;
+  totalBeds?: number;
   price: string;
   score: number;
   status: string;
@@ -52,12 +48,12 @@ interface Property {
 
 interface Inquiry {
   id: number;
-  name: string;
+  student: string;
   college: string;
   message: string;
   time: string;
   status: string;
-  initial: string;
+  phone: string;
 }
 
 // Mock Data
@@ -101,15 +97,29 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Record<string, string[]>>({});
   const [realProperties, setRealProperties] = useState<Property[]>([]);
   const [realInquiries, setRealInquiries] = useState<Inquiry[]>([]);
-  const [isPropertyLoading, setIsPropertyLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const fetchProperties = async () => {
+  const seedProperties = useCallback(async () => {
     if (!user) return;
-    setIsPropertyLoading(true);
+    const sampleProps = [
+      { owner_id: user.id, name: "The Hive Coliving", type: "PG", available_beds: 3, total_beds: 20, price: 8500, safety_score: 92, status: "Active", views: 520, location: "Pune", image_url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=400" },
+      { owner_id: user.id, name: "Urban Stay PG", type: "Hostel", available_beds: 0, total_beds: 15, price: 7200, safety_score: 88, status: "Active", views: 310, location: "Pune", image_url: "https://images.unsplash.com/photo-1502672260266-1c1de2424107?q=80&w=400" },
+      { owner_id: user.id, name: "Skyline Rooms", type: "Apartment", available_beds: 1, total_beds: 10, price: 12000, safety_score: 95, status: "Active", views: 640, location: "Pune", image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=400" },
+    ];
+
+    await supabase.from('properties').delete().not('name', 'is', null);
+
+    const { error } = await supabase.from('properties').insert(sampleProps);
+    if (!error) {
+      showToast("Real properties seeded successfully! 🏠");
+    }
+  }, [user, showToast]);
+
+  const fetchProperties = useCallback(async () => {
+    if (!user) return;
     const { data, error } = await supabase
       .from('properties')
       .select('*')
@@ -119,7 +129,6 @@ export default function Dashboard() {
       console.error('Error fetching properties:', error);
     } else if (data) {
       if (data.length === 0) {
-        // Auto-seed if empty for first-time owners
         await seedProperties();
       } else {
         const mapped = data.map(p => ({
@@ -138,54 +147,9 @@ export default function Dashboard() {
         setRealProperties(mapped);
       }
     }
-    setIsPropertyLoading(false);
-  };
+  }, [user, seedProperties]);
 
-  const fetchInquiries = async () => {
-    const { data, error } = await supabase
-      .from('inquiries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching inquiries:', error);
-    } else if (data) {
-      if (data.length === 0) {
-        await onboardStudents();
-      } else {
-        const mapped = data.map(i => ({
-          id: i.id,
-          student: i.student_name,
-          college: i.college,
-          message: i.message,
-          phone: i.phone,
-          status: i.status,
-          time: new Date(i.created_at).toLocaleDateString()
-        }));
-        setRealInquiries(mapped);
-      }
-    }
-  };
-
-  const seedProperties = async () => {
-    if (!user) return;
-    const sampleProps = [
-      { owner_id: user.id, name: "The Hive Coliving", type: "PG", available_beds: 3, total_beds: 20, price: 8500, safety_score: 92, status: "Active", views: 520, location: "Pune", image_url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=400" },
-      { owner_id: user.id, name: "Urban Stay PG", type: "Hostel", available_beds: 0, total_beds: 15, price: 7200, safety_score: 88, status: "Active", views: 310, location: "Pune", image_url: "https://images.unsplash.com/photo-1502672260266-1c1de2424107?q=80&w=400" },
-      { owner_id: user.id, name: "Skyline Rooms", type: "Apartment", available_beds: 1, total_beds: 10, price: 12000, safety_score: 95, status: "Active", views: 640, location: "Pune", image_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=400" },
-    ];
-
-    // Clear existing for this owner
-    await supabase.from('properties').delete().not('name', 'is', null);
-
-    const { error } = await supabase.from('properties').insert(sampleProps);
-    if (!error) {
-      fetchProperties();
-      showToast("Real properties seeded successfully! 🏠");
-    }
-  };
-
-  const onboardStudents = async () => {
+  const onboardStudents = useCallback(async () => {
     const students = [
       { name: "Ananya Tiwari", college: "COEP", phone: "9454762552", msg: "Finally something that shows real walking distance from my college!" },
       { name: "Rohan Sharma", college: "MIT-WPU Pune", phone: "9876543210", msg: "The PG options were really good. The team helped me find a place near MIT-WPU very quickly." },
@@ -210,7 +174,6 @@ export default function Dashboard() {
       { name: "Tanisha Kapoor", college: "Symbiosis International University", phone: "9874512360", msg: "Good experience overall. The PG was clean and well-maintained." }
     ];
 
-    // Clear existing to avoid duplicates and ensure exactly 21
     await supabase.from('inquiries').delete().not('student_name', 'is', null);
 
     const { error } = await supabase.from('inquiries').insert(
@@ -227,16 +190,41 @@ export default function Dashboard() {
       showToast("Sync Failed: " + error.message);
     } else {
       showToast(`Successfully onboarded all ${students.length} students from Sheet! 🎓`);
-      fetchInquiries();
     }
-  };
+  }, [showToast]);
+
+  const fetchInquiries = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('inquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching inquiries:', error);
+    } else if (data) {
+      if (data.length === 0) {
+        await onboardStudents();
+      } else {
+        const mapped = data.map(i => ({
+          id: i.id,
+          student: i.student_name,
+          college: i.college,
+          message: i.message,
+          phone: i.phone,
+          status: i.status,
+          time: new Date(i.created_at).toLocaleDateString()
+        }));
+        setRealInquiries(mapped);
+      }
+    }
+  }, [onboardStudents]);
 
   useEffect(() => {
     if (isMounted && user) {
       fetchProperties();
       fetchInquiries();
     }
-  }, [isMounted, user]);
+  }, [isMounted, user, fetchProperties, fetchInquiries]);
 
   useEffect(() => {
     if (isMounted && !isLoading && !user) {
@@ -254,11 +242,11 @@ export default function Dashboard() {
 
   // Calculate real-time stats
   const totalViews = realProperties.length > 0 
-    ? realProperties.reduce((sum, p: any) => sum + (p.views || 0), 0)
+    ? realProperties.reduce((sum, p: Property) => sum + (p.views || 0), 0)
     : 1247; // Default to mock value only if no real properties exist
   
-  const totalBeds = displayProperties.reduce((sum, p: any) => sum + (p.totalBeds || 10), 0);
-  const availableBeds = displayProperties.reduce((sum, p: any) => sum + (p.beds || 0), 0);
+  const totalBeds = displayProperties.reduce((sum, p: Property) => sum + (p.totalBeds || 10), 0);
+  const availableBeds = displayProperties.reduce((sum, p: Property) => sum + (p.beds || 0), 0);
   const occupancyRate = totalBeds > 0 ? Math.round(((totalBeds - availableBeds) / totalBeds) * 100) : 87;
 
   // Calculate dynamic inquiry count
@@ -525,7 +513,7 @@ function PropertiesTab({ properties, refresh }: PropertiesTabProps) {
         </button>
       </div>
       <AnimatePresence>
-        {isAddModalOpen && <AddPropertyModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSuccess={() => { setIsAddModalOpen(false); refresh(); }} />}
+        {isAddModalOpen && <AddPropertyModal onClose={() => setIsAddModalOpen(false)} onSuccess={() => { setIsAddModalOpen(false); refresh(); }} />}
       </AnimatePresence>
       <div className="bg-white rounded-3xl overflow-hidden border border-black/5 shadow-sm overflow-x-auto">
         <table className="w-full text-left">
@@ -555,7 +543,7 @@ function PropertiesTab({ properties, refresh }: PropertiesTabProps) {
   );
 }
 
-function AddPropertyModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose: () => void, onSuccess: () => void }) {
+function AddPropertyModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: () => void }) {
   const { user, showToast } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: "", type: "PG", price: "", beds: "0", location: "Pune" });
@@ -723,30 +711,3 @@ function StatCard({ label, value, trend, trendUp, hasDot, progress, isScore }: S
     </div>
   );
 }
-
-interface ActivityItemProps {
-  icon: React.ElementType;
-  color: string;
-  title: string;
-  desc: string;
-  time: string;
-}
-
-function ActivityItem({ icon: Icon, color, title, desc, time }: ActivityItemProps) {
-  return (
-    <div className="flex items-start space-x-4">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-        <Icon size={20} />
-      </div>
-      <div className="flex-1">
-        <div className="flex justify-between items-baseline mb-1">
-          <h4 className="font-bold text-sm text-brand-ink">{title}</h4>
-          <span className="text-[10px] font-medium text-brand-ink/40">{time}</span>
-        </div>
-        <p className="text-[13px] font-medium text-brand-ink/60">{desc}</p>
-      </div>
-      <button className="text-brand-ink/20 hover:text-brand-ink"><ChevronRight size={16} /></button>
-    </div>
-  );
-}
-
