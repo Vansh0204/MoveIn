@@ -49,7 +49,7 @@ export default function AuthModal() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await signInWithGoogle();
+    await signInWithGoogle(authMode);
     setIsGoogleLoading(false);
   };
 

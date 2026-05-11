@@ -36,6 +36,7 @@ type AuthContextType = {
   closeAuthModal: () => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
+  updateUserRole: (role: "student" | "owner") => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,16 +75,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      setUser(session?.user ? mapSupabaseUser(session.user) : null);
+      const mappedUser = session?.user ? mapSupabaseUser(session.user) : null;
+      
+      // If we have a session but no role in metadata, check localStorage
+      if (session?.user && mappedUser && !session.user.user_metadata?.role) {
+        const intendedRole = localStorage.getItem("intended_role") as "student" | "owner";
+        if (intendedRole) {
+          await supabase.auth.updateUser({
+            data: { role: intendedRole }
+          });
+          mappedUser.role = intendedRole;
+          localStorage.removeItem("intended_role");
+        }
+      }
+      
+      setUser(mappedUser);
       setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (role: "student" | "owner" = "student") => {
+    // Store intended role to apply after redirect if user is new
+    if (typeof window !== "undefined") {
+      localStorage.setItem("intended_role", role);
+    }
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -149,6 +169,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const updateUserRole = async (role: "student" | "owner") => {
+    const { error } = await supabase.auth.updateUser({
+      data: { role }
+    });
+    if (!error) {
+      setUser(prev => prev ? { ...prev, role } : null);
+      showToast(`Role updated to ${role}`);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -170,6 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         closeAuthModal: () => setIsAuthModalOpen(false),
         toastMessage,
         showToast,
+        updateUserRole,
       }}
     >
       {children}
