@@ -79,13 +79,6 @@ const BookingCard = ({ isMobile = false, user, openAuthModal, onBook, isBooked }
           Book a Visit
         </button>
       )}
-      <button 
-        onClick={() => ReactGA.event({ category: "User", action: "whatsapp_clicked", label: "Property Detail Page" })}
-        className="w-full flex items-center justify-center space-x-2 bg-white border-2 border-[#2D7A4F] text-[#2D7A4F] font-bold py-3.5 rounded-full hover:bg-green-50 transition-colors"
-      >
-        <MessageCircle size={18} />
-        <span>WhatsApp Owner</span>
-      </button>
       <button className="w-full flex items-center justify-center space-x-2 bg-transparent text-brand-ink/60 font-semibold py-3 hover:text-brand-ink hover:bg-gray-50 rounded-full transition-colors">
         <Heart size={18} />
         <span>Save to Wishlist</span>
@@ -154,7 +147,7 @@ export default function PropertyDetailPage() {
           >
             <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="font-display font-bold text-lg text-brand-ink leading-tight">The Hive Coliving</h2>
+                <h2 className="font-display font-bold text-lg text-brand-ink leading-tight">The Hive Premium Coliving</h2>
                 <div className="text-sm font-semibold text-brand-ink/60">₹8,500/month</div>
               </div>
               <button 
