@@ -122,7 +122,7 @@ export default function PropertyDetailPage() {
   
   const handleBook = () => {
     setIsBooked(true);
-    showToast("Visit request sent successfully! The owner will contact you shortly.", "success");
+    showToast("Visit request sent successfully! The owner will contact you shortly.");
     ReactGA.event({ category: "User", action: "visit_booked", label: "The Hive Coliving" });
   };
   
