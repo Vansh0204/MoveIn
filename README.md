@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MoveIn | Pune's Premium Student Housing Platform
 
-## Getting Started
+![MoveIn Landing Page](public/screenshot.png) <!-- Note: Add a real screenshot if available -->
 
-First, run the development server:
+MoveIn is a high-end student housing marketplace specifically designed for students moving to Pune. It eliminates the friction of high brokerage, fake listings, and inaccurate distance claims by providing a verified, role-based platform.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Verified Stays**: Every PG and Hostel is hand-verified for safety and amenities.
+- **Role-Based Access**: Specialized interfaces for **Students** (Discovery & Booking) and **Property Owners** (Listing & Lead Management).
+- **Premium UX**: Glassmorphic UI, smooth Framer Motion animations, and a mobile-first responsive design.
+- **Safety Audit**: 25-point safety score for every property to ensure peace of mind for students and parents.
+- **Smart Filters**: Find stays near specific Pune colleges (COEP, MIT-WPU, Symbiosis, etc.).
+- **Zero Brokerage**: Direct connection between students and property owners.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Backend/Auth**: Supabase (PostgreSQL + Auth + RLS)
+- **Analytics**: Google Analytics 4 (React-GA4)
 
-## Learn More
+## 📦 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
+- Node.js 18+
+- A Supabase Project
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Vansh0204/MoveIn.git
+   cd MoveIn
+   ```
 
-## Deploy on Vercel
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Environment Variables**
+   Create a `.env.local` file and add your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Database Setup**
+   Run the SQL provided in `supabase/schema.sql` in your Supabase SQL Editor to set up tables and RLS policies.
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to see the result.
+
+## 🛡️ Role System
+
+- **Students**: Can explore stays, filter by college, and book visits.
+- **Owners**: Access a specialized dashboard to manage listings, track inquiries, and view analytics.
+- **Google OAuth**: Intelligent role detection persists your choice across sign-ins.
+
+## 📄 License
+
+MIT License - feel free to use this project for your own housing marketplace!
+
+---
+Built with ❤️ for the student community in Pune.
