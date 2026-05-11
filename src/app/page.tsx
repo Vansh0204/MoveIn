@@ -7,9 +7,33 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { COLLEGES } from "@/lib/constants";
-import { ChevronDown, CheckCircle2, ShieldCheck, MapPin, LayoutDashboard } from "lucide-react";
+import { ChevronDown, CheckCircle2, ShieldCheck, MapPin, LayoutDashboard, Star, Quote } from "lucide-react";
 
 // Helper components
+const TestimonialCard = ({ name, college, text, icon: FeedbackIcon, highlight }: { name: string, college: string, text: string, icon: React.ElementType, highlight: string }) => (
+  <motion.div 
+    whileHover={{ y: -5 }}
+    className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-[24px] flex flex-col justify-between h-full group transition-all hover:bg-white/10 hover:border-brand-gold/30"
+  >
+    <div>
+      <div className="w-10 h-10 rounded-full bg-brand-gold/10 flex items-center justify-center mb-6 group-hover:bg-brand-gold/20 transition-colors">
+        <FeedbackIcon size={20} className="text-brand-gold" />
+      </div>
+      <p className="text-white/80 font-body text-[15px] leading-relaxed mb-6 italic">
+        &ldquo;{text}&rdquo;
+      </p>
+    </div>
+    <div className="flex items-center justify-between pt-6 border-t border-white/5">
+      <div>
+        <div className="font-bold text-white text-sm">{name}</div>
+        <div className="text-[11px] text-brand-gold/60 uppercase tracking-widest font-bold">{college}</div>
+      </div>
+      <div className="bg-brand-gold/10 px-3 py-1 rounded-full">
+        <span className="text-[10px] font-bold text-brand-gold uppercase">{highlight}</span>
+      </div>
+    </div>
+  </motion.div>
+);
 const AnimatedHeadline = () => {
   const wordsLine1 = ["Find", "Your", "Home,"];
   const wordsLine2 = ["Near", "Your", "College."];
@@ -356,6 +380,51 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* Testimonials Section */}
+      <section className="relative z-10 py-24 bg-[#0A0908]/50">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div>
+              <div className="flex items-center space-x-2 text-brand-gold mb-4">
+                <Quote size={20} fill="currentColor" className="opacity-50" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.3em]">STUDENT STORIES</span>
+              </div>
+              <h2 className="font-display text-[32px] md:text-[44px] text-white font-bold leading-tight">
+                Real Students, <br />
+                <span className="text-brand-gold italic">Real Stays.</span>
+              </h2>
+            </div>
+            <p className="max-w-xs text-white/40 text-[15px] font-medium leading-relaxed">
+              We asked students about their biggest frustrations with house hunting in Pune. Here&apos;s how MoveIn helped.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <TestimonialCard 
+              name="Ananya Tiwari" 
+              college="COEP" 
+              text="Finding a PG that actually showed real walking distances was impossible. MoveIn showed me a place that was exactly 8 mins away. Saved my mornings!" 
+              icon={MapPin}
+              highlight="Verified Distance"
+            />
+            <TestimonialCard 
+              name="Rohan Sharma" 
+              college="MIT-WPU" 
+              text="Scams on other sites are crazy. Here, every owner is verified. I booked my stay with complete peace of mind while sitting in Delhi." 
+              icon={ShieldCheck}
+              highlight="Scam-Free"
+            />
+            <TestimonialCard 
+              name="Sneha Patil" 
+              college="Symbiosis" 
+              text="Zero brokerage literally saved me 15k upfront. That covered my first two months of food! Best decision for my student budget." 
+              icon={Star}
+              highlight="Zero Brokerage"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Bottom Stats Bar */}
       <div className="w-full bg-[#0A0908] border-t border-brand-gold/10 relative z-20">
