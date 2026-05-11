@@ -33,7 +33,7 @@ function Flame(props: React.SVGProps<SVGSVGElement>) {
   return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
 }
 
-const BookingCard = ({ isMobile = false }) => (
+const BookingCard = ({ isMobile = false, user, openAuthModal, onBook, isBooked }: { isMobile?: boolean, user: any, openAuthModal: any, onBook: any, isBooked: boolean }) => (
   <div className={`bg-white ${isMobile ? '' : 'border border-black/5 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-6'}`}>
     {!isMobile && (
       <>
@@ -56,12 +56,29 @@ const BookingCard = ({ isMobile = false }) => (
     </div>
 
     <div className="space-y-3">
-      <button 
-        onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: "Book Visit CTA" })}
-        className="w-full bg-brand-gold text-brand-ink font-bold py-4 rounded-full hover:bg-brand-ink hover:text-white transition-colors shadow-sm"
-      >
-        Book a Visit
-      </button>
+      {isBooked ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full bg-[#E3EDE9] text-[#1D6B5A] font-bold py-4 rounded-full flex items-center justify-center space-x-2 border border-[#1D6B5A]/20"
+        >
+          <CheckCircle2 size={20} />
+          <span>Request Sent!</span>
+        </motion.div>
+      ) : (
+        <button 
+          onClick={() => {
+            if (!user) {
+              openAuthModal();
+            } else {
+              onBook();
+            }
+          }}
+          className="w-full bg-brand-gold text-brand-ink font-bold py-4 rounded-full hover:bg-brand-ink hover:text-white transition-all active:scale-95 shadow-sm"
+        >
+          Book a Visit
+        </button>
+      )}
       <button 
         onClick={() => ReactGA.event({ category: "User", action: "whatsapp_clicked", label: "Property Detail Page" })}
         className="w-full flex items-center justify-center space-x-2 bg-white border-2 border-[#2D7A4F] text-[#2D7A4F] font-bold py-3.5 rounded-full hover:bg-green-50 transition-colors"
@@ -84,11 +101,21 @@ const BookingCard = ({ isMobile = false }) => (
   </div>
 );
 
+import { useAuth } from '@/context/AuthContext';
+
 export default function PropertyDetailPage() {
+  const { user, openAuthModal, showToast } = useAuth();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [isMobileBookingOpen, setIsMobileBookingOpen] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
+  
+  const handleBook = () => {
+    setIsBooked(true);
+    showToast("Visit request sent successfully! The owner will contact you shortly.", "success");
+    ReactGA.event({ category: "User", action: "visit_booked", label: "The Hive Coliving" });
+  };
   
   const { scrollY } = useScroll();
 
@@ -130,8 +157,24 @@ export default function PropertyDetailPage() {
                 <h2 className="font-display font-bold text-lg text-brand-ink leading-tight">The Hive Coliving</h2>
                 <div className="text-sm font-semibold text-brand-ink/60">₹8,500/month</div>
               </div>
-              <button className="bg-brand-gold text-brand-ink font-bold px-6 py-2.5 rounded-full hover:bg-brand-ink hover:text-white transition-colors">
-                Book Visit
+              <button 
+                onClick={() => {
+                  if (!user) {
+                    openAuthModal();
+                  } else if (!isBooked) {
+                    handleBook();
+                  }
+                }}
+                className={`${isBooked ? 'bg-[#E3EDE9] text-[#1D6B5A]' : 'bg-brand-gold text-brand-ink'} font-bold px-6 py-2.5 rounded-full hover:opacity-90 transition-all flex items-center space-x-2`}
+              >
+                {isBooked ? (
+                  <>
+                    <CheckCircle2 size={16} />
+                    <span>Request Sent</span>
+                  </>
+                ) : (
+                  <span>Book Visit</span>
+                )}
               </button>
             </div>
           </motion.div>
@@ -371,10 +414,9 @@ export default function PropertyDetailPage() {
 
         </div>
 
-        {/* Right Sidebar (Desktop Booking Card) */}
         <div className="hidden md:block w-full md:w-[40%] lg:w-[35%] shrink-0">
           <div className="sticky top-28">
-            <BookingCard />
+            <BookingCard user={user} openAuthModal={openAuthModal} onBook={handleBook} isBooked={isBooked} />
           </div>
         </div>
         
@@ -416,7 +458,7 @@ export default function PropertyDetailPage() {
               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[32px] z-[210] p-6 pb-[max(env(safe-area-inset-bottom),24px)] md:hidden shadow-[0_-20px_50px_rgba(0,0,0,0.2)] border-t border-black/5"
             >
               <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
-              <BookingCard isMobile={true} />
+              <BookingCard isMobile={true} user={user} openAuthModal={openAuthModal} onBook={handleBook} isBooked={isBooked} />
             </motion.div>
           </>
         )}
