@@ -16,7 +16,7 @@ export type User = {
   name: string;
   email: string;
   avatarUrl?: string;
-  role?: "student" | "owner";
+  role: "student" | "owner";
   savedStays: string[];
 };
 
@@ -42,12 +42,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function mapSupabaseUser(supaUser: SupabaseUser): User {
   const meta = supaUser.user_metadata ?? {};
+  
+  // Check multiple metadata locations for the role
+  const role = meta.role || supaUser.app_metadata?.role || "student";
+  
   return {
     id: supaUser.id,
     name: meta.full_name ?? meta.name ?? supaUser.email?.split("@")[0] ?? "User",
     email: supaUser.email ?? "",
     avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
-    role: meta.role ?? undefined,
+    role: (role === "owner" ? "owner" : "student") as "student" | "owner",
     savedStays: [],
   };
 }
