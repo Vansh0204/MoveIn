@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
-type User = {
+export type User = {
   id: string;
   name: string;
   email: string;
