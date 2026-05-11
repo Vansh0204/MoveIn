@@ -97,7 +97,7 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
         ) : (
-          <button onClick={openAuthModal} className="bg-brand-ink text-white font-bold text-sm px-6 py-2.5 rounded-full hover:bg-brand-gold hover:text-brand-ink transition-all shadow-sm active:scale-95">
+          <button onClick={() => openAuthModal()} className="bg-brand-ink text-white font-bold text-sm px-6 py-2.5 rounded-full hover:bg-brand-gold hover:text-brand-ink transition-all shadow-sm active:scale-95">
             Sign In
           </button>
         )}
