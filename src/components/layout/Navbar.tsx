@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { LogOut, Heart, User, Map } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Heart, User, Map, LayoutDashboard } from "lucide-react";
 
 export default function Navbar() {
   const { user, openAuthModal, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   if (pathname?.startsWith("/dashboard")) return null;
 
@@ -25,6 +26,20 @@ export default function Navbar() {
           <Map size={16} className="mr-1.5" /> Explore Map
         </Link>
         <Link href="/listings" className="text-sm font-bold text-brand-ink/60 hover:text-brand-ink hidden md:block transition-colors">All Stays</Link>
+        {(!user || user.role !== "student") && (
+          <button 
+            onClick={() => {
+              if (user) {
+                router.push("/dashboard");
+              } else {
+                openAuthModal("owner");
+              }
+            }}
+            className="text-[12px] font-bold px-4 py-2 bg-brand-gold/10 text-brand-gold border border-brand-gold/20 rounded-full hover:bg-brand-gold hover:text-brand-ink hidden lg:block transition-all active:scale-95"
+          >
+            List Your Stay
+          </button>
+        )}
         
         {user ? (
           <div className="relative">
@@ -60,6 +75,11 @@ export default function Navbar() {
                       <div className="text-[12px] font-medium text-brand-ink/50 truncate mt-0.5">{user.email}</div>
                     </div>
                     <div className="p-2 space-y-1">
+                      {user.role !== "student" && (
+                        <Link href="/dashboard" onClick={() => setIsDropdownOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-semibold text-brand-ink hover:bg-gray-50 rounded-xl transition-colors">
+                          <LayoutDashboard size={16} className="mr-3 text-brand-ink/50" /> My Dashboard
+                        </Link>
+                      )}
                       <Link href="/saved" onClick={() => setIsDropdownOpen(false)} className="flex items-center px-3 py-2.5 text-sm font-semibold text-brand-ink hover:bg-gray-50 rounded-xl transition-colors">
                         <Heart size={16} className="mr-3 text-brand-ink/50" /> Saved Stays
                       </Link>

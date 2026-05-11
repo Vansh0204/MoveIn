@@ -16,6 +16,7 @@ type User = {
   name: string;
   email: string;
   avatarUrl?: string;
+  role?: "student" | "owner";
   savedStays: string[];
 };
 
@@ -25,11 +26,13 @@ type AuthContextType = {
   isLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUpWithEmail: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
+  signUpWithEmail: (email: string, password: string, name: string, role?: "student" | "owner") => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
   toggleSaveStay: (id: string) => void;
   isAuthModalOpen: boolean;
-  openAuthModal: () => void;
+  authMode: "student" | "owner";
+  setAuthMode: (mode: "student" | "owner") => void;
+  openAuthModal: (mode?: "student" | "owner") => void;
   closeAuthModal: () => void;
   toastMessage: string | null;
   showToast: (msg: string) => void;
@@ -44,6 +47,7 @@ function mapSupabaseUser(supaUser: SupabaseUser): User {
     name: meta.full_name ?? meta.name ?? supaUser.email?.split("@")[0] ?? "User",
     email: supaUser.email ?? "",
     avatarUrl: meta.avatar_url ?? meta.picture ?? undefined,
+    role: meta.role ?? undefined,
     savedStays: [],
   };
 }
@@ -53,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"student" | "owner">("student");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Hydrate session on mount & subscribe to auth changes
@@ -98,12 +103,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUpWithEmail = async (
     email: string,
     password: string,
-    name: string
+    name: string,
+    role: "student" | "owner" = "student"
   ): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name, role: role } },
     });
     if (error) return { error: error.message };
     showToast("Account created! Check your email to verify. ✉️");
@@ -151,7 +157,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         toggleSaveStay,
         isAuthModalOpen,
-        openAuthModal: () => setIsAuthModalOpen(true),
+        authMode,
+        setAuthMode,
+        openAuthModal: (mode: "student" | "owner" = "student") => {
+          setAuthMode(mode);
+          setIsAuthModalOpen(true);
+        },
         closeAuthModal: () => setIsAuthModalOpen(false),
         toastMessage,
         showToast,

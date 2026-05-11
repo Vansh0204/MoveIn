@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import ReactGA from "react-ga4";
 import { LucideIcon, Heart, MapPin, Star, Wifi, AirVent, Utensils, WashingMachine, Sparkles, Shield, Dumbbell, Zap, Tv, Car } from "lucide-react";
 
@@ -30,6 +29,7 @@ export interface PropertyCardProps {
   variant?: 'grid' | 'map-popup' | 'featured';
   onSave?: (id: string) => void;
   isSaved?: boolean;
+  onClick?: () => void;
 }
 
 const amenityIconMap: Record<string, LucideIcon> = {
@@ -45,7 +45,7 @@ const amenityIconMap: Record<string, LucideIcon> = {
   'Parking': Car
 };
 
-export default function PropertyCard({ property, variant = 'grid', onSave, isSaved = false }: PropertyCardProps) {
+export default function PropertyCard({ property, variant = 'grid', onSave, isSaved = false, onClick }: PropertyCardProps) {
   const [saved, setSaved] = useState(isSaved);
 
   const handleSave = (e: React.MouseEvent) => {
@@ -53,6 +53,11 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
     e.stopPropagation();
     setSaved(!saved);
     if (onSave) onSave(property.id);
+  };
+
+  const handleClick = () => {
+    ReactGA.event({ category: "User", action: "listing_clicked", label: property.name });
+    if (onClick) onClick();
   };
 
   const getGradient = () => {
@@ -72,10 +77,9 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
   const extraAmenitiesCount = property.amenities.length - 4;
 
   return (
-    <Link
-      href={`/listings/${property.id}`}
-      onClick={() => ReactGA.event({ category: "User", action: "listing_clicked", label: property.name })}
-      className={`group block bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-[5px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] ${variant === 'map-popup' ? 'w-[280px]' : 'w-full'}`}
+    <div
+      onClick={handleClick}
+      className={`group cursor-pointer bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-[5px] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] ${variant === 'map-popup' ? 'w-[280px]' : 'w-full'}`}
     >
       {/* Image Area */}
       <div className="relative h-[200px] overflow-hidden bg-gray-200">
@@ -158,8 +162,8 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
               <span className="font-display text-[20px] font-bold text-brand-ink">₹{property.price.toLocaleString()}</span>
               <span className="text-[12px] text-brand-ink/50 font-medium ml-1">/{property.priceUnit}</span>
             </div>
-            <div className="text-[13px] font-semibold text-brand-ink/70 group-hover:text-brand-ink group-hover:bg-brand-gold px-3 py-1.5 rounded-full transition-colors flex items-center">
-              Book Visit <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+            <div className="text-[13px] font-semibold text-brand-ink bg-brand-gold/10 group-hover:bg-brand-gold group-hover:text-brand-ink px-3 py-1.5 rounded-full transition-all flex items-center">
+              Book Visit <span className="ml-1 group-hover:translate-x-1 transition-transform inline-block">→</span>
             </div>
           </div>
 
@@ -180,6 +184,6 @@ export default function PropertyCard({ property, variant = 'grid', onSave, isSav
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

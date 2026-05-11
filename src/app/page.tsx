@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { motion, useInView, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { COLLEGES } from "@/lib/constants";
-import { ChevronDown, CheckCircle2, ShieldCheck, MapPin } from "lucide-react";
+import { ChevronDown, CheckCircle2, ShieldCheck, MapPin, LayoutDashboard } from "lucide-react";
 
 // Helper components
 const AnimatedHeadline = () => {
@@ -74,8 +76,16 @@ const StatCounter = ({ endValue, prefix = "", suffix = "", label }: { endValue: 
 };
 
 export default function Home() {
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
   const [isSelectorExpanded, setIsSelectorExpanded] = useState(false);
   const [selectedCollegeId, setSelectedCollegeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthLoading && user?.role === "owner") {
+      router.push("/dashboard");
+    }
+  }, [user, isAuthLoading, router]);
 
   const selectedCollege = COLLEGES.find(c => c.id === selectedCollegeId);
 
@@ -197,13 +207,22 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 className="mt-2"
               >
-                <Link 
-                  href={`/listings?college=${selectedCollege?.id}`}
-                  className="w-full mt-4 py-4 bg-brand-gold text-brand-ink rounded-[40px] font-body font-semibold flex items-center justify-center space-x-2 hover:bg-white transition-colors"
-                >
-                  <span>247 verified stays near {selectedCollege?.shortName}</span>
-                  <span className="text-xl leading-none">→</span>
-                </Link>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <Link 
+                    href={`/listings?college=${selectedCollege?.id}`}
+                    className="w-full sm:w-auto bg-brand-gold text-brand-ink font-bold px-8 py-4 rounded-full flex items-center justify-center space-x-2 shadow-lg hover:shadow-glow-gold transition-all active:scale-95 group"
+                  >
+                    <span>Find stays near {selectedCollege?.shortName}</span>
+                  </Link>
+                  {user?.role !== "student" && (
+                    <Link 
+                      href="/dashboard"
+                      className="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center hover:bg-white/20 transition-all active:scale-95"
+                    >
+                      List your stay →
+                    </Link>
+                  )}
+                </div>
               </motion.div>
             )}
           </motion.div>
@@ -229,6 +248,24 @@ export default function Home() {
             </div>
           </motion.div>
 
+          {user?.role !== "student" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="mt-8 pt-6 border-t border-white/5"
+            >
+              <Link 
+                href="/dashboard"
+                className="flex items-center text-white/40 hover:text-brand-gold transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mr-3 group-hover:bg-brand-gold/10 group-hover:text-brand-gold transition-all">
+                  <LayoutDashboard size={14} />
+                </div>
+                <span className="text-sm font-bold tracking-tight">Property Owner? List your hostel or PG here →</span>
+              </Link>
+            </motion.div>
+          )}
         </div>
 
         {/* Right Column (40%) - Floating Cards (Desktop Stacked, Mobile Horizontal) */}

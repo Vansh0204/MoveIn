@@ -216,14 +216,15 @@ function ListingsContent() {
           <div className="flex gap-8 relative">
             <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ${view === 'map' ? 'lg:w-[60%]' : ''}`}>
               {properties.map((property, index) => {
-                if (index === properties.length - 1) {
-                  return (
-                    <div ref={lastElementRef} key={property.id}>
-                      <PropertyCard property={property} />
-                    </div>
-                  );
-                }
-                return <PropertyCard key={property.id} property={property} />;
+                const isLast = index === properties.length - 1;
+                return (
+                  <div key={property.id} ref={isLast ? lastElementRef : null}>
+                    <PropertyCard 
+                      property={property} 
+                      onClick={() => { window.location.href = `/listings/${property.id}`; }}
+                    />
+                  </div>
+                );
               })}
               
               {hasMore && (

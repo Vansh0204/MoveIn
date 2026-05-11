@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { COLLEGES } from "@/lib/constants";
@@ -9,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, signInWithGoogle, signInWithEmail, signUpWithEmail, showToast } = useAuth();
+  const { isAuthModalOpen, authMode, setAuthMode, closeAuthModal, signInWithGoogle, signInWithEmail, signUpWithEmail, showToast } = useAuth();
 
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -86,7 +87,7 @@ export default function AuthModal() {
         closeAuthModal();
       }
     } else {
-      const { error } = await signUpWithEmail(email, password, name);
+      const { error } = await signUpWithEmail(email, password, name, authMode);
       if (error) {
         setErrors({ form: error });
         setIsShaking(true);
@@ -153,12 +154,41 @@ export default function AuthModal() {
           ))}
         </div>
 
+        {/* Role Toggle */}
+        <div className="px-6 pt-6 shrink-0">
+          <div className="bg-gray-100 p-1 rounded-[16px] flex relative">
+            <button
+              onClick={() => setAuthMode("student")}
+              className={`flex-1 py-2.5 text-[13px] font-bold z-10 transition-colors ${authMode === "student" ? "text-brand-ink" : "text-brand-ink/40"}`}
+            >
+              Student
+            </button>
+            <button
+              onClick={() => setAuthMode("owner")}
+              className={`flex-1 py-2.5 text-[13px] font-bold z-10 transition-colors ${authMode === "owner" ? "text-brand-ink" : "text-brand-ink/40"}`}
+            >
+              Property Owner
+            </button>
+            <motion.div
+              initial={false}
+              animate={{ x: authMode === "student" ? "0%" : "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-[12px] shadow-sm"
+            />
+          </div>
+        </div>
+
         {/* Scrollable Form Area */}
         <div className="p-6 overflow-y-auto">
           <div className="text-center mb-6">
             <h2 id="auth-modal-title" className="font-display text-[24px] font-bold text-brand-ink">
-              {tab === "signin" ? "Welcome back" : "Join MoveIn"}
+              {tab === "signin" 
+                ? (authMode === "owner" ? "Owner Sign In" : "Welcome back") 
+                : (authMode === "owner" ? "Join as Property Owner" : "Join MoveIn")}
             </h2>
+            {authMode === "owner" && tab === "signup" && (
+              <p className="text-[13px] text-brand-ink/50 mt-1 font-medium">Start listing your PG or Hostel today</p>
+            )}
           </div>
 
           {/* Google OAuth Button */}
@@ -217,7 +247,7 @@ export default function AuthModal() {
               {errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.email}</p>}
             </div>
 
-            {tab === "signup" && (
+            {tab === "signup" && authMode === "student" && (
               <select
                 value={collegeId} onChange={(e) => setCollegeId(e.target.value)}
                 className="w-full bg-gray-50 border border-transparent focus:border-brand-gold focus:bg-white rounded-xl px-4 py-3.5 text-[15px] font-medium text-brand-ink outline-none appearance-none transition-colors"
@@ -262,7 +292,7 @@ export default function AuthModal() {
               </div>
             )}
 
-            {tab === "signup" && (
+            {tab === "signup" && authMode === "student" && (
               <div className="pt-2">
                 <label className="text-[11px] font-bold uppercase tracking-widest text-brand-ink/40 mb-3 block">I&apos;m looking for</label>
                 <div className="flex space-x-2">
@@ -303,7 +333,7 @@ export default function AuthModal() {
             </button>
           </form>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-6 space-y-4">
             {tab === "signin" ? (
               <p className="text-[14px] text-brand-ink/60 font-medium">
                 New to MoveIn?{" "}
