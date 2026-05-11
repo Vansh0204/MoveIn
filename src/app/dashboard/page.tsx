@@ -12,7 +12,6 @@ import {
   Settings, 
   Plus, 
   Search, 
-  ChevronRight,
   Zap,
   LogOut,
   Phone
